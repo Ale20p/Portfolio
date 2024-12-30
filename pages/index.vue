@@ -29,7 +29,7 @@
   align-items: center;
   flex-direction: column;
   height: 40%;
-  width: 100%;
+  width: 50%;
   background-color: var(--secondary-color);
 }
 </style>
