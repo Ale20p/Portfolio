@@ -5,4 +5,13 @@
     --background-color: #7077A1;
     --text-color: white;
   }
+
+  @font-face {
+    font-family: 'MainFont';
+    src: url(~/assets/fonts/MosquichDemo-OVR0P.otf);
+  }
+
+  body {
+    font-family: 'MainFont';
+  }
   
