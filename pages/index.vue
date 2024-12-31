@@ -22,14 +22,19 @@
   justify-content: center;
   align-items: center;
   background-image: url(~/assets/images/home-background.jpg);
-  background-position: center;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  position: relative;
 }
 
 .middle-of-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
   height: 40%;
   width: 50%;
   background-color: var(--secondary-color);
