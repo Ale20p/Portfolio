@@ -38,6 +38,11 @@
               0 0 60px 0px var(--background-color); /* Fades into page background */
 }
 
+.middle-of-page > * {
+  flex-shrink: 1; /* Allow elements to shrink dynamically */
+  max-width: 100%; /* Prevent overflowing horizontally */
+}
+
 .middle-of-page h1 {
   margin-bottom: 25px;
 }
@@ -47,6 +52,10 @@
 }
 
 h1 {
-  font-size: 100px;
+  font-size: 10vh;
+}
+
+p {
+  font-size: 2.5vh;
 }
 </style>
