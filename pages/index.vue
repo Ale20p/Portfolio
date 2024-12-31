@@ -21,6 +21,8 @@
   /* Center child elements both horizontally and vertically: */
   justify-content: center;
   align-items: center;
+  background-image: url(~/assets/images/home-background.jpg);
+  background-position: center;
 }
 
 .middle-of-page {
@@ -31,5 +33,20 @@
   height: 40%;
   width: 50%;
   background-color: var(--secondary-color);
+  border: none; /* No solid border */
+  box-shadow: 0 0 30px 10px var(--accent-color), /* Gold glow */
+              0 0 60px 0px var(--background-color); /* Fades into page background */
+}
+
+.middle-of-page h1 {
+  margin-bottom: 25px;
+}
+
+.middle-of-page p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 100px;
 }
 </style>
