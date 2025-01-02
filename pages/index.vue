@@ -4,7 +4,8 @@
       <!-- The SVG is sized to fill the container and has a 100x85 viewBox, so we can easily calculate a rectangle perimeter = 2*(100+85) = 370. -->
       <svg class="svg-border" viewBox="0 0 100 85" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
         <!-- Path starts at bottom left corner (0, 85), goes to bottom right corner (100, 85), then goes top right (100, 0), then to top left (0, 0), and then back down to close. -->
-        <path class="border-of-middle" d="M 0, 85 L 100, 85 L 100, 0 L 0, 0 Z" />
+        <!-- All work in (x,y), L: line to, M: start point, Z: back to start -->
+        <path class="border-of-middle" d="M 10,85 L 90,85 L 100,85 L 100,0 L 0,0 L 0,85 Z" />
       </svg>
       <div class="text">
         <h1 class="myname">Alessandro Pomponi</h1>
@@ -35,9 +36,10 @@
 }
 
 .middle-of-page {
+  top: -10%;
   position: relative;
   text-align: center;
-  height: 40%;
+  height: 30%;
   width: 50%;
   background-color: transparent;
   margin: 0 auto;
@@ -58,9 +60,9 @@
   fill: none;
   stroke: var(--accent-color);
   /* The perimeter for the 100x85 viewbox is 370, so -> */
-  stroke-dasharray: 370; /* This defines the stroke outline of the shape as a dashed pattern, 140 represents length of the visible dash, 540 represents gap in stroke */
-  stroke-dashoffset: 270; /* Offsets the stroke of the dash pattern */
-                          /* make -100 of the perimeter in order to show bottom line, so hides everything except first 100 of perimeter */
+  stroke-dasharray: 370; /* This defines the stroke outline of the shape as a dashed pattern */
+  stroke-dashoffset: 290; /* Offsets the stroke of the dash pattern */
+                          /* make -80 of the perimeter in order to show bottom line, so hides everything except first 100 of perimeter */
   stroke-width: 4%;
   transition: stroke-dashoffset 0.5s linear,
               stroke-width 0.5s linear;
