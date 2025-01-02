@@ -8,9 +8,11 @@
         <path class="border-of-middle" d="M 10,85 L 90,85 L 100,85 L 100,0 L 0,0 L 0,85 Z" />
       </svg>
       <div class="text">
-        <h1 class="myname">Alessandro Pomponi</h1>
+        <NuxtLink class="link-about" to="/about">
+          <h1 class="myname">Alessandro Pomponi</h1>
 
-        <p class="titles">Computer Science Student</p>
+          <p class="titles">Computer Science Student</p>
+        </NuxtLink>
       </div>
     </div>
   </div>
@@ -78,6 +80,12 @@
 .middle-of-page:hover .border-of-middle{
   stroke-dashoffset: 0; /* Reveals the entire perimeter */
   stroke-width: 2.5%;
+}
+
+/* Styling for link */
+.link-about {
+  color: var(--text-color);
+  text-decoration: none; /* no underline */
 }
 
 .middle-of-page > * {
