@@ -1,9 +1,16 @@
 <template>
   <div class="main-page">
     <div class="middle-of-page">
-      <h1>Alessandro Pomponi</h1>
+      <!-- The SVG is sized to fill the container and has a 100x85 viewBox, so we can easily calculate a rectangle perimeter = 2*(100+85) = 370. -->
+      <svg class="svg-border" viewBox="0 0 100 85" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Path starts at bottom left corner (0, 85), goes to bottom right corner (100, 85), then goes top right (100, 0), then to top left (0, 0), and then back down to close. -->
+        <path class="border-of-middle" d="M 0, 85 L 100, 85 L 100, 0 L 0, 0 Z" />
+      </svg>
+      <div class="text">
+        <h1 class="myname">Alessandro Pomponi</h1>
 
-      <p>Computer Science Student</p>
+        <p class="titles">Computer Science Student</p>
+      </div>
     </div>
   </div>
 </template>
@@ -16,10 +23,8 @@
 .main-page {
   display: flex;
   flex-direction: column;
-  /* Fill the entire viewport: */
-  height: 100vh;
-  /* Center child elements both horizontally and vertically: */
-  justify-content: center;
+  height: 100vh; /* Fill the entire viewport: */
+  justify-content: center; /* Center child elements both horizontally and vertically: */
   align-items: center;
   background-image: url(~/assets/images/home-background.jpg);
   background-position: center center;
@@ -30,17 +35,47 @@
 }
 
 .middle-of-page {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   text-align: center;
   height: 40%;
   width: 50%;
-  background-color: var(--secondary-color);
-  border: none; /* No solid border */
-  box-shadow: 0 0 30px 10px var(--accent-color), /* Gold glow */
-              0 0 60px 0px var(--background-color); /* Fades into page background */
+  background-color: transparent;
+  margin: 0 auto;
+}
+
+/* Absolutely position the svg to fill the .middle-of-page container */
+.svg-border {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* The 'draw border' styles */
+.border-of-middle {
+  fill: none;
+  stroke: var(--accent-color);
+  /* The perimeter for the 100x85 viewbox is 370, so -> */
+  stroke-dasharray: 370; /* This defines the stroke outline of the shape as a dashed pattern, 140 represents length of the visible dash, 540 represents gap in stroke */
+  stroke-dashoffset: 270; /* Offsets the stroke of the dash pattern */
+                          /* make -100 of the perimeter in order to show bottom line, so hides everything except first 100 of perimeter */
+  stroke-width: 4%;
+  transition: stroke-dashoffset 0.5s linear,
+              stroke-width 0.5s linear;
+}
+
+/* Text layering above the svg */
+.text {
+  position: relative;
+  z-index: 1; /* Ensures the text stays above the svg */
+}
+
+/* On hover, animate from dashoffset=370 to dashoffset=0. */
+.middle-of-page:hover .border-of-middle{
+  stroke-dashoffset: 0; /* Reveals the entire perimeter */
+  stroke-width: 2.5%;
 }
 
 .middle-of-page > * {
@@ -48,19 +83,13 @@
   max-width: 100%; /* Prevent overflowing horizontally */
 }
 
-.middle-of-page h1 {
+.myname {
+  font-size: 10vh;
   margin-bottom: 25px;
 }
 
-.middle-of-page p {
-  margin-top: 0;
-}
-
-h1 {
-  font-size: 10vh;
-}
-
-p {
+.titles {
   font-size: 2.5vh;
+  margin-top: 0;
 }
 </style>
