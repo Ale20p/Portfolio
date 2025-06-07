@@ -1,10 +1,13 @@
 :root {
     --primary-color: #2D3250;
     --secondary-color: #424769;
-    --accent-color: #cfb056;
+    --accent-color: #cfb056; /*Gold*/ 
+    /* --accent-color: #50C878; Emerald */
     --background-color: #484d68;
     --text-color: white;
     --projects-color: #22263c;
+    --streak-color: rgba(255, 191, 0, 0.3);
+    --streak-angle: 180deg;
   }
 
   @font-face {

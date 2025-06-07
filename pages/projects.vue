@@ -24,10 +24,10 @@
   justify-content: center;
 }
 
-.projects-section {
+/* .projects-section {
   position: relative;
   min-height: 100vh;
   width: 60%;
   background-color: var(--projects-color);
-}
+} */
 </style>

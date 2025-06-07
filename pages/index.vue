@@ -29,12 +29,25 @@
   height: 100vh; /* Fill the entire viewport: */
   justify-content: center; /* Center child elements both horizontally and vertically: */
   align-items: center;
-  background-image: url(~/assets/images/home-background.jpg);
+  /* background-image: url(~/assets/images/home-background.jpg); */
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
   position: relative;
+}
+
+.main-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    var(--streak-angle),
+    transparent 40%,
+    var(--streak-color),
+    transparent 80%
+  );
 }
 
 .middle-of-page {
@@ -46,6 +59,7 @@
   background-color: transparent;
   margin: 0 auto;
 }
+
 
 /* Absolutely position the svg to fill the .middle-of-page container */
 .svg-border {
