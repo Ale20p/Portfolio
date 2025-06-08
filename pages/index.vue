@@ -15,6 +15,7 @@
         </NuxtLink>
       </div>
     </div>
+    <div class="bottom-streak"></div>
   </div>
 </template>
 
@@ -26,7 +27,7 @@
 .main-page {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Fill the entire viewport: */
+  height: 100vh; /* Fill the entire viewport */
   justify-content: center; /* Center child elements both horizontally and vertically: */
   align-items: center;
   /* background-image: url(~/assets/images/home-background.jpg); */
@@ -37,18 +38,50 @@
   position: relative;
 }
 
-.main-page::before {
-  content: "";
+.bottom-streak {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    var(--streak-angle),
-    transparent 40%,
-    var(--streak-color),
-    transparent 80%
-  );
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 15px;
+  background: linear-gradient(to right, var(--background-color), var(--background-color), var(--accent-color));
+  background-size: 400% 400%;
+  animation: animate-gradient 5s ease infinite;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: background-position;
 }
+
+@keyframes animate-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  /* 25% {
+    background-position: 25% 50%;
+  }
+  50% {
+    background-position: 50% 50%;
+  }
+  75% {
+    background-position: 75% 50%;
+  } */
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.bottom-streak::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 240px;
+  height: 40px;
+  background: inherit; /* inherits animated gradient */
+  border-radius: 0 0 100% 100%;
+  transform: translateY(-50%) rotate(-45deg);
+}
+
 
 .middle-of-page {
   top: -10%;
