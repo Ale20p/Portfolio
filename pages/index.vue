@@ -44,29 +44,17 @@
   left: 0;
   width: 100%;
   height: 15px;
-  background: linear-gradient(to right, var(--background-color), var(--background-color), var(--accent-color));
-  background-size: 400% 400%;
-  animation: animate-gradient 5s ease infinite;
+  background: repeating-linear-gradient(to right, var(--accent-color), var(--background-color), var(--accent-color) 210px);
+  background-size: 300% 100%;
+  animation: animate-gradient 4s linear infinite;
   backface-visibility: hidden;
   transform: translateZ(0);
   will-change: background-position;
 }
 
 @keyframes animate-gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  /* 25% {
-    background-position: 25% 50%;
-  }
-  50% {
-    background-position: 50% 50%;
-  }
-  75% {
-    background-position: 75% 50%;
-  } */
-  100% {
-    background-position: 100% 50%;
+  to {
+    background-position-x: -210px;
   }
 }
 
