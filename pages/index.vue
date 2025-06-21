@@ -16,9 +16,20 @@
       </div>
     </div>
     <div class="bottom-streak">
-      <svg class="streak-svg" width="576" height="197" viewBox="0 0 576 197" xmlns="http://www.w3.org/2000/svg">
-        <path d="M1 196H575V75.1156C333.586 200.705 207.964 184.161 1 2V196Z" />
-        <path d="M1 196H575V75.1156C333.586 200.705 207.964 184.161 1 2M1 196C1 196 3.34315 77.7617 1 2M1 196V2" />
+      <svg class="streak-svg" preserveAspectRatio="none" width="576" height="197" viewBox="0 0 576 197" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="movingGradient" x1="0" y1="0" x2="576" y2="0"
+                          gradientUnits="userSpaceOnUse"
+                          gradientTransform="translate(0,0)"
+                          spreadMethod="repeat">
+            <stop offset="0%" stop-color="var(--accent-color)" />
+            <stop offset="30%"   stop-color="var(--background-color)" />
+            <stop offset="100%" stop-color="var(--accent-color)" />
+
+            <animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="576 0" dur="4s" repeatCount="indefinite"/>
+          </linearGradient>
+        </defs>
+        <path d="M1 196H575V75.1156C333.586 200.705 207.964 184.161 1 2M1 196C1 196 3.34315 77.7617 1 2M1 196V2" fill="url(#movingGradient)"/>
       </svg>
     </div>
   </div>
@@ -35,7 +46,6 @@
   height: 100vh; /* Fill the entire viewport */
   justify-content: center; /* Center child elements both horizontally and vertically: */
   align-items: center;
-  /* background-image: url(~/assets/images/home-background.jpg); */
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -44,30 +54,18 @@
   overflow: hidden;
 }
 
-.bottom-streak {
+.streak-svg {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 25px;
-  background: repeating-linear-gradient(to right, var(--accent-color), var(--background-color), var(--accent-color) 500px);
-  background-size: 300% 100%;
-  animation: animate-gradient 4s linear infinite;
+  height: 90px;
   backface-visibility: hidden;
   transform: translateZ(0);
-  will-change: background-position;
+  will-change: transform;
 }
 
-@keyframes animate-gradient {
-  to {
-    background-position-x: -500px;
-  }
-}
 
-.streak-svg {
-  width: 100%;
-  height: 100%;
-}
 
 .streak-path {
   fill:var(--accent-color);
