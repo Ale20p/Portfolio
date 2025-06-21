@@ -11,11 +11,16 @@
         <NuxtLink class="link-about" to="/about">
           <h1 class="myname">Alessandro Pomponi</h1>
 
-          <p class="titles">Computer Science Student</p>
+          <p class="titles">Software Engineering Undergraduate Student</p>
         </NuxtLink>
       </div>
     </div>
-    <div class="bottom-streak"></div>
+    <div class="bottom-streak">
+      <svg class="streak-svg" width="576" height="197" viewBox="0 0 576 197" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 196H575V75.1156C333.586 200.705 207.964 184.161 1 2V196Z" />
+        <path d="M1 196H575V75.1156C333.586 200.705 207.964 184.161 1 2M1 196C1 196 3.34315 77.7617 1 2M1 196V2" />
+      </svg>
+    </div>
   </div>
 </template>
 
@@ -36,6 +41,7 @@
   background-attachment: fixed;
   background-size: cover;
   position: relative;
+  overflow: hidden;
 }
 
 .bottom-streak {
@@ -43,8 +49,8 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 15px;
-  background: repeating-linear-gradient(to right, var(--accent-color), var(--background-color), var(--accent-color) 210px);
+  height: 25px;
+  background: repeating-linear-gradient(to right, var(--accent-color), var(--background-color), var(--accent-color) 500px);
   background-size: 300% 100%;
   animation: animate-gradient 4s linear infinite;
   backface-visibility: hidden;
@@ -54,22 +60,18 @@
 
 @keyframes animate-gradient {
   to {
-    background-position-x: -210px;
+    background-position-x: -500px;
   }
 }
 
-.bottom-streak::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 240px;
-  height: 40px;
-  background: inherit; /* inherits animated gradient */
-  border-radius: 0 0 100% 100%;
-  transform: translateY(-50%) rotate(-45deg);
+.streak-svg {
+  width: 100%;
+  height: 100%;
 }
 
+.streak-path {
+  fill:var(--accent-color);
+}
 
 .middle-of-page {
   top: -10%;
