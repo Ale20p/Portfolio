@@ -20,13 +20,12 @@
         <defs>
           <linearGradient id="movingGradient" x1="0" y1="0" x2="576" y2="0"
                           gradientUnits="userSpaceOnUse"
-                          gradientTransform="translate(0,0)"
-                          spreadMethod="repeat">
+                          spreadMethod="repeat"
+                          :gradientTransform="gradientTransform"
+                          ref="grandientRef">
             <stop offset="0%" stop-color="var(--accent-color)" />
             <stop offset="30%"   stop-color="var(--background-color)" />
             <stop offset="100%" stop-color="var(--accent-color)" />
-
-            <animateTransform attributeName="gradientTransform" type="translate" from="0 0" to="576 0" dur="4s" repeatCount="indefinite"/>
           </linearGradient>
         </defs>
         <path d="M1 196H575V75.1156C333.586 200.705 207.964 184.161 1 2M1 196C1 196 3.34315 77.7617 1 2M1 196V2" fill="url(#movingGradient)"/>
@@ -36,7 +35,28 @@
 </template>
 
 <script lang="ts" setup>
+import {ref, onMounted, onBeforeUnmount} from 'vue'
 
+const translateX = ref(0)
+const speed = 0.5 // pixels per frame
+let animationFrame: number
+
+const animateGradient = () => {
+  translateX.value = (translateX.value + speed) % 576
+  animationFrame = requestAnimationFrame(animateGradient)
+}
+
+onMounted(() => {
+  animationFrame = requestAnimationFrame(animateGradient)
+})
+
+onBeforeUnmount(() => {
+  cancelAnimationFrame(animationFrame)
+})
+
+const gradientTransform = computed(() => 
+  isNaN(translateX.value) ? '' : `translate(${translateX.value}, 0)`
+) 
 </script>
 
 <style>
@@ -138,3 +158,4 @@
   margin-top: 0;
 }
 </style>
+
