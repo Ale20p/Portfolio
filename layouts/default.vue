@@ -14,6 +14,6 @@ import MainHeader from '~/components/MainHeader.vue';
 .default-layout {
   background-color: var(--background-color);
   color: var(--text-color);
-  height: 100vh;
+  min-height: 100vh;
 }
 </style>
