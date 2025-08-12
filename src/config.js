@@ -29,10 +29,11 @@ module.exports = {
       name: 'About',
       url: '/#about',
     },
-    {
-      name: 'Experience',
-      url: '/#jobs',
-    },
+    /* Uncomment this section below once I have experience, so that viewers can jump to experience section. */
+    // {
+    //   name: 'Experience',
+    //   url: '/#jobs',
+    // },
     {
       name: 'Work',
       url: '/#projects',
