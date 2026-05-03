@@ -1,9 +1,10 @@
 ---
-date: '1'
+date: '3'
 title: 'PendulumSim'
 cover: './pendulumSim.png'
 github: 'https://github.com/Ale20p/Projects/tree/main/Java/PendulumSim'
 external: ''
+cta: ''
 tech:
   - Java
   - JavaFX
