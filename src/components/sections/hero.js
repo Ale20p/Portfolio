@@ -67,7 +67,7 @@ const Hero = () => {
       <p>
         I’m an up and coming software engineer who's passionate about building efficient,
         user-focused applications that bridge creativity and technology. Currently, I’m working
-        towards obtaining a Bachelor's degree in Software Engineering at{' '}
+        towards obtaining a Bachelor's of Engineering in Software Engineering degree at{' '}
         <a href="https://www.concordia.ca" target="_blank" rel="noreferrer">
           Concordia University
         </a>

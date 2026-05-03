@@ -208,7 +208,7 @@ const Nav = ({ isHome }) => {
   const ResumeLink = (
     <a
       className="resume-button"
-      href="/English CV.docx.pdf"
+      href="/Gina Cody School of Engineering and Computer Science Resume English.pdf"
       target="_blank"
       rel="noopener noreferrer">
       Resume
