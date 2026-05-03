@@ -31,6 +31,7 @@ exports.createSchemaCustomization = ({ actions }) => {
       url: String
       cta: String
       showInProjects: Boolean
+      cover: File @fileByRelativePath
     }
   `;
   createTypes(typeDefs);
