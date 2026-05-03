@@ -4,8 +4,8 @@ title: 'MotionSim'
 cover: './MotionSim.png'
 github: 'https://github.com/Ale20p/Projects/tree/main/Java/MotionSim'
 external: 'https://github.com/Ale20p/Projects/tree/main/Java/MotionSim'
-ios: ''
-android: ''
+# ios: ''
+# android: ''
 tech:
   - Java
   - JavaFX
