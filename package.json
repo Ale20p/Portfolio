@@ -13,6 +13,9 @@
   "license": "MIT",
   "browserslist": "> 0.25%, not dead",
   "scripts": {
+    "sync-projects": "node scripts/sync-projects.js",
+    "prebuild": "node scripts/sync-projects.js",
+    "predevelop": "node scripts/sync-projects.js",
     "build": "gatsby build",
     "develop": "gatsby develop",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
