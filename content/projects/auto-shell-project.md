@@ -14,4 +14,4 @@ projectSlug: shell-project
 sourcePath: Python/Shell-Project
 ---
 
-This script simulates a basic shell environment that can handle built-in commands and execute external programs.
+A custom Python-based shell environment that simulates terminal operations, handling built-in commands, command history, aliases, and external program execution.
