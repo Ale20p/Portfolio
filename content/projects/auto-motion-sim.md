@@ -2,7 +2,7 @@
 date: '2025-01-02'
 title: MotionSim
 github: 'https://github.com/Ale20p/Projects/tree/main/Java/MotionSim'
-external: 'https://github.com/Ale20p/Projects/tree/main/Java/MotionSim'
+external: ''
 tech:
   - Java
   - JavaFX
