@@ -1,4 +1,22 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npm run lint-staged
+# Ensure node is in PATH for Git GUI / VS Code on Windows
+if ! command -v node >/dev/null 2>&1; then
+  for p in \
+    "$LOCALAPPDATA/nvm/v20.19.4" \
+    "$LOCALAPPDATA/nvm/v18.20.8" \
+    "$LOCALAPPDATA/nvm/v16.20.2" \
+    "$APPDATA/nvm/v20.19.4" \
+    "$APPDATA/nvm/v18.20.8" \
+    "$APPDATA/nvm/v16.20.2" \
+    "/c/Users/alexp/AppData/Local/nvm/v20.19.4" \
+    "/c/Program Files/nodejs"; do
+    if [ -d "$p" ]; then
+      export PATH="$p:$PATH"
+      break
+    fi
+  done
+fi
+
+node ./node_modules/lint-staged/bin/lint-staged.js
