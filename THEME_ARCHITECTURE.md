@@ -1,4 +1,4 @@
-# Portfolio Theme Architecture Plan
+# Portfolio Theme Architecture
 
 ## 1. Executive Summary & Problem Statement
 
