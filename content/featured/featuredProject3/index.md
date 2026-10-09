@@ -1,9 +1,10 @@
 ---
 date: '2'
-title: 'Academic Management System'
-cover: './academicManagementSystem.png'
+title: Academic Management System
+cover: "'''''''''''''''./academicManagementSystem.png'''''''''''''''"
 github: 'https://github.com/AyYildirim-05/SOEN287_Project'
 external: ''
+cta: ''
 tech:
   - HTML
   - CSS

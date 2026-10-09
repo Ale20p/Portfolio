@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { srConfig } from '@config';
 import sr from '@utils/sr';
 import { usePrefersReducedMotion } from '@hooks';
+import aboutData from '@data/about.json';
 
 const StyledAboutSection = styled.section`
   max-width: 900px;
@@ -125,23 +126,18 @@ const About = () => {
     sr.reveal(revealContainer.current, srConfig());
   }, []);
 
-  const skills = ['Java', 'Spring-Boot', 'HTML', 'CSS', 'JavaScript', 'PostgreSQL'];
+  const { title = 'About Me', paragraphs = [], skills = [] } = aboutData;
 
   return (
     <StyledAboutSection id="about" ref={revealContainer}>
-      <h2 className="numbered-heading">About Me</h2>
+      <h2 className="numbered-heading">{title}</h2>
 
       <div className="inner">
         <StyledText>
           <div>
-            <p>
-              Hello! My name is Alessandro and I enjoy creating software and solving unique
-              problems. My interest in software development started back in 2023 when I took my
-              first programming class in high school — ended up falling in love with the process of
-              building things with code, and figureing out how to make them work.
-            </p>
-
-            <p>Here are a few technologies I’ve been working with recently:</p>
+            {paragraphs.map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
           </div>
 
           <ul className="skills-list">

@@ -13,9 +13,11 @@
   "license": "MIT",
   "browserslist": "> 0.25%, not dead",
   "scripts": {
+    "sync-data": "node scripts/sync-data.js",
     "sync-projects": "node scripts/sync-projects.js",
-    "prebuild": "node scripts/sync-projects.js",
-    "predevelop": "node scripts/sync-projects.js",
+    "sync-all": "node scripts/sync-data.js && node scripts/sync-projects.js",
+    "prebuild": "npm run sync-all",
+    "predevelop": "npm run sync-all",
     "build": "gatsby build",
     "develop": "gatsby develop",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",

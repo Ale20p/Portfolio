@@ -1,0 +1,32 @@
+[
+  {
+    "order": 1,
+    "title": "FantasyPicks",
+    "cover": "./fantasyPicks.png",
+    "github": "https://github.com/Ale20p/FantasyPicks",
+    "external": "",
+    "cta": "",
+    "tech": ["Java", "Spring-Boot", "HTML", "CSS", "JavaScript", "PostgreSQL"],
+    "description": "FantasyPicks is a full-stack web application built with Spring Boot and Vanilla JavaScript that aggregates fantasy football player rankings from multiple sources like ESPN, Sleeper, and NFL.com. It uses web scraping (Jsoup/Playwright) to fetch and normalize data, providing users with a unified, filterable dashboard to compare rankings and optimize their draft strategy."
+  },
+  {
+    "order": 2,
+    "title": "Academic Management System",
+    "cover": "./academicManagementSystem.png",
+    "github": "https://github.com/AyYildirim-05/SOEN287_Project",
+    "external": "",
+    "cta": "",
+    "tech": ["HTML", "CSS", "JavaScript", "Node.js", "Express.js", "Firebase"],
+    "description": "Academic Management System is a full-stack academic management platform that allows students and teachers to track courses, manage assignment schedules, and visualize grade performance through interactive charts. It features automated deadline reminders via email and provides tools for GPA estimation and exporting academic data to PDF or CSV formats."
+  },
+  {
+    "order": 3,
+    "title": "PendulumSim",
+    "cover": "./cover.png",
+    "github": "https://github.com/Ale20p/Projects/tree/main/Java/PendulumSim",
+    "external": "",
+    "cta": "",
+    "tech": ["Java", "JavaFX", "SceneBuilder", "Gson"],
+    "description": "A JavaFX application that demonstrates the motion of a simple pendulum. Users can adjust parameters such as length, amplitude, gravity and mass, while observing values like period, angular frequency and displacement in real time. The interface also includes informational and settings screens."
+  }
+]

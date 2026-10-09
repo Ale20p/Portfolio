@@ -1,0 +1,22 @@
+[
+  {
+    "title": "MotionSim",
+    "date": "2025-01-02",
+    "github": "https://github.com/Ale20p/Projects/tree/main/Java/MotionSim",
+    "external": "",
+    "company": "",
+    "showInProjects": true,
+    "tech": ["Java", "JavaFX", "SceneBuilder", "Gson"],
+    "description": "A JavaFX application that demonstrates spring physics and projectile motion. Users can sign up, log in and configure application settings before running an interactive simulation. The project includes a Maven build with unit tests for the physics model."
+  },
+  {
+    "title": "Online Banking Management Console Sim",
+    "date": "2024-11-15",
+    "github": "https://github.com/Ale20p/Projects/tree/main/Java/OnlineBankingSim",
+    "external": "",
+    "company": "",
+    "showInProjects": true,
+    "tech": ["Java", "OOP", "CLI"],
+    "description": "A simulated online banking console application demonstrating robust object-oriented architecture, account management, and transaction logging."
+  }
+]

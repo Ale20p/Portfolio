@@ -2,7 +2,7 @@ import * as classic from './classic';
 
 /**
  * Registry of available themes.
- * When a new theme is created using `theme_generation_ai_prompt.md`:
+ * When a new theme is created:
  * 1. Create `src/components/themes/<new-theme>/`
  * 2. Generate its sections & export them in `src/components/themes/<new-theme>/index.js`
  * 3. Import the theme here and add it to `themes`:
@@ -21,7 +21,8 @@ export const DEFAULT_THEME = 'classic';
  * @param {string} themeName
  * @returns {object} The theme module containing section components
  */
-export const getTheme = (themeName = DEFAULT_THEME) => themes[themeName] || themes[DEFAULT_THEME];
+export const getTheme = (themeName = DEFAULT_THEME) =>
+  themes[themeName] || themes[DEFAULT_THEME] || themes.classic;
 
 export { classic };
 export default themes;

@@ -1,7 +1,14 @@
-module.exports = {
-  email: 'alexpomponi1@gmail.com',
+let meta = {};
+try {
+  meta = require('./data/meta.json');
+} catch (_) {
+  meta = {};
+}
 
-  socialMedia: [
+module.exports = {
+  email: meta.email || 'alexpomponi1@gmail.com',
+
+  socialMedia: meta.socialMedia || [
     {
       name: 'GitHub',
       url: 'https://github.com/Ale20p',
@@ -10,30 +17,17 @@ module.exports = {
       name: 'Instagram',
       url: 'https://www.instagram.com/alepomp1',
     },
-    // {
-    //   name: 'Twitter',
-    //   url: 'https://twitter.com/bchiang7',
-    // },
     {
       name: 'Linkedin',
       url: 'https://www.linkedin.com/in/alessandro-pomponi',
     },
-    // {
-    //   name: 'Codepen',
-    //   url: 'https://codepen.io/bchiang7',
-    // },
   ],
 
-  navLinks: [
+  navLinks: (meta.navLinks && meta.navLinks.filter(l => l.enabled !== false)) || [
     {
       name: 'About',
       url: '/#about',
     },
-    /* Uncomment this section below once I have experience, so that viewers can jump to experience section. */
-    // {
-    //   name: 'Experience',
-    //   url: '/#jobs',
-    // },
     {
       name: 'Work',
       url: '/#projects',

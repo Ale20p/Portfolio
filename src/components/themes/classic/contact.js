@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { srConfig, email } from '@config';
 import sr from '@utils/sr';
 import { usePrefersReducedMotion } from '@hooks';
+import contactData from '@data/contact.json';
 
 const StyledContactSection = styled.section`
   max-width: 600px;
@@ -53,19 +54,26 @@ const Contact = () => {
     sr.reveal(revealContainer.current, srConfig());
   }, []);
 
+  const {
+    overline = 'What’s Next?',
+    title = 'Get In Touch',
+    description = 'I’m currently looking for any new opportunities, my inbox is always open. Whether you have a question or just want to say hi, I’ll try my best to get back to you!',
+    buttonText = 'Say Hello',
+    email: contactEmail,
+  } = contactData;
+
+  const targetEmail = contactEmail || email;
+
   return (
     <StyledContactSection id="contact" ref={revealContainer}>
-      <h2 className="numbered-heading overline">What’s Next?</h2>
+      <h2 className="numbered-heading overline">{overline}</h2>
 
-      <h2 className="title">Get In Touch</h2>
+      <h2 className="title">{title}</h2>
 
-      <p>
-        I’m currently looking for any new opportunities, my inbox is always open. Whether you have a
-        question or just want to say hi, I’ll try my best to get back to you!
-      </p>
+      <p>{description}</p>
 
-      <a className="email-link" href={`mailto:${email}`}>
-        Say Hello
+      <a className="email-link" href={`mailto:${targetEmail}`}>
+        {buttonText}
       </a>
     </StyledContactSection>
   );

@@ -1,0 +1,38 @@
+{
+  "email": "alexpomponi1@gmail.com",
+  "socialMedia": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/Ale20p"
+    },
+    {
+      "name": "Instagram",
+      "url": "https://www.instagram.com/alepomp1"
+    },
+    {
+      "name": "Linkedin",
+      "url": "https://www.linkedin.com/in/alessandro-pomponi"
+    }
+  ],
+  "navLinks": [
+    {
+      "name": "About",
+      "url": "/#about"
+    },
+    {
+      "name": "Experience",
+      "url": "/#jobs",
+      "enabled": false
+    },
+    {
+      "name": "Work",
+      "url": "/#projects",
+      "enabled": true
+    },
+    {
+      "name": "Contact",
+      "url": "/#contact",
+      "enabled": true
+    }
+  ]
+}

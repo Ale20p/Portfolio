@@ -1,0 +1,14 @@
+{
+  "greeting": "Hi, my name is",
+  "name": "Alessandro Pomponi.",
+  "subtitle": "I build software applications and tools.",
+  "bio": "I’m an up and coming software engineer who's passionate about building efficient, user-focused applications that bridge creativity and technology. Currently, I’m working towards obtaining a Bachelor's of Engineering in Software Engineering degree at Concordia University.",
+  "bioLink": {
+    "text": "Concordia University",
+    "url": "https://www.concordia.ca"
+  },
+  "cta": {
+    "text": "Let's get in touch!",
+    "url": "https://www.linkedin.com/in/alessandro-pomponi-57a8aa357"
+  }
+}

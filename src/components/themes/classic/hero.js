@@ -3,6 +3,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled from 'styled-components';
 import { navDelay, loaderDelay } from '@utils';
 import { usePrefersReducedMotion } from '@hooks';
+import heroData from '@data/hero.json';
 
 const StyledHeroSection = styled.section`
   ${({ theme }) => theme.mixins.flexCenter};
@@ -59,29 +60,33 @@ const Hero = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  const one = <h1>Hi, my name is</h1>;
-  const two = <h2 className="big-heading">Alessandro Pomponi.</h2>;
-  const three = <h3 className="big-heading">I build software applications and tools.</h3>;
+  const renderBio = (bio, bioLink) => {
+    if (!bioLink || !bioLink.text || !bio || !bio.includes(bioLink.text)) {
+      return bio;
+    }
+    const parts = bio.split(bioLink.text);
+    return (
+      <>
+        {parts[0]}
+        <a href={bioLink.url} target="_blank" rel="noreferrer">
+          {bioLink.text}
+        </a>
+        {parts.slice(1).join(bioLink.text)}
+      </>
+    );
+  };
+
+  const one = <h1>{heroData.greeting}</h1>;
+  const two = <h2 className="big-heading">{heroData.name}</h2>;
+  const three = <h3 className="big-heading">{heroData.subtitle}</h3>;
   const four = (
     <>
-      <p>
-        I’m an up and coming software engineer who's passionate about building efficient,
-        user-focused applications that bridge creativity and technology. Currently, I’m working
-        towards obtaining a Bachelor's of Engineering in Software Engineering degree at{' '}
-        <a href="https://www.concordia.ca" target="_blank" rel="noreferrer">
-          Concordia University
-        </a>
-        .
-      </p>
+      <p>{renderBio(heroData.bio, heroData.bioLink)}</p>
     </>
   );
   const five = (
-    <a
-      className="email-link"
-      href="https://www.linkedin.com/in/alessandro-pomponi-57a8aa357"
-      target="_blank"
-      rel="noreferrer">
-      Let's get in touch!
+    <a className="email-link" href={heroData.cta.url} target="_blank" rel="noreferrer">
+      {heroData.cta.text}
     </a>
   );
 

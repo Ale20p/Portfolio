@@ -1,0 +1,9 @@
+{
+  "title": "About Me",
+  "paragraphs": [
+    "Hello! My name is Alessandro and I enjoy creating software and solving unique problems. My interest in software development started back in 2023 when I took my first programming class in high school — ended up falling in love with the process of building things with code, and figureing out how to make them work.",
+    "Here are a few technologies I’ve been working with recently:"
+  ],
+  "skills": ["Java", "Spring-Boot", "HTML", "CSS", "JavaScript", "PostgreSQL"],
+  "avatar": "src/images/gecko.jpeg"
+}
