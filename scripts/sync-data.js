@@ -2,8 +2,9 @@
 /**
  * sync-data.js
  *
- * Automatically synchronizes portfolio data from the "Portfolio-Data" repository.
+ * Automatically synchronizes portfolio data and images from the "Portfolio-Data" repository.
  * - Copies raw JSON files into `src/data/` (meta, hero, about, jobs, featured, projects, contact).
+ * - Copies images from `Portfolio-Data/images/` (or downloads remote image URLs) into featured projects and src/images.
  * - Converts `jobs.json` into markdown files under `content/jobs/<company>/index.md`.
  * - Updates `featured.json` content in `content/featured/`.
  * - Updates `projects.json` content in `content/projects/`.
@@ -85,6 +86,83 @@ function resolveDataDir() {
 }
 
 /**
+ * Resolve and copy or download cover image for a featured project
+ */
+function resolveProjectCover(item, targetDir, dataDir) {
+  const imagesDir = path.join(dataDir, 'images');
+  const slug = slugify(item.title);
+
+  let rawCover = (item.cover || '').trim().replace(/^['"]+|['"]+$/g, '');
+
+  // 1. If it's a remote URL, download it
+  if (rawCover.startsWith('http://') || rawCover.startsWith('https://')) {
+    try {
+      const ext = path.extname(new URL(rawCover).pathname) || '.png';
+      const destName = `cover${ext}`;
+      const destPath = path.join(targetDir, destName);
+      execSync(`curl -sL "${rawCover}" -o "${destPath}"`, { timeout: 15000 });
+      if (fs.existsSync(destPath) && fs.statSync(destPath).size > 0) {
+        console.log(`  ✓ Downloaded remote cover for "${item.title}" -> ${destName}`);
+        return `./${destName}`;
+      }
+    } catch (e) {
+      console.warn(`[sync-data] Warning: Failed to download remote cover ${rawCover}:`, e.message);
+    }
+  }
+
+  // 2. Candidate filenames to search in Portfolio-Data/images/
+  let baseName = rawCover ? path.basename(rawCover) : '';
+  const candidateNames = [
+    baseName,
+    `${slug}.png`,
+    `${slug}.jpg`,
+    `${slug}.jpeg`,
+    `${slug}.webp`,
+    `${item.title}.png`,
+    `${item.title}.jpg`,
+    'cover.png',
+  ].filter(Boolean);
+
+  let sourceImage = null;
+  if (fs.existsSync(imagesDir)) {
+    for (const name of candidateNames) {
+      const candidatePath = path.join(imagesDir, name);
+      if (fs.existsSync(candidatePath)) {
+        sourceImage = candidatePath;
+        baseName = name;
+        break;
+      }
+    }
+  }
+
+  // 3. If image found in Portfolio-Data/images, copy it to targetDir
+  if (sourceImage) {
+    const destImage = path.join(targetDir, baseName);
+    fs.copyFileSync(sourceImage, destImage);
+    console.log(
+      `  ✓ Synced image from Portfolio-Data/images/${baseName} -> ${path.relative(
+        PORTFOLIO_ROOT,
+        destImage,
+      )}`,
+    );
+    return `./${baseName}`;
+  }
+
+  // 4. Check if an image already exists in targetDir
+  if (fs.existsSync(targetDir)) {
+    const existingFiles = fs.readdirSync(targetDir);
+    for (const f of existingFiles) {
+      if (/\.(png|jpe?g|webp|gif)$/i.test(f)) {
+        return `./${f}`;
+      }
+    }
+  }
+
+  // 5. Fallback default
+  return './cover.png';
+}
+
+/**
  * Main sync logic
  */
 function sync() {
@@ -115,7 +193,24 @@ function sync() {
       }
     }
 
-    // 3. Sync jobs.json into content/jobs/
+    // 3. Sync avatar image from Portfolio-Data/images if present
+    const aboutJsonPath = path.join(dataDir, 'about.json');
+    if (fs.existsSync(aboutJsonPath)) {
+      try {
+        const about = JSON.parse(fs.readFileSync(aboutJsonPath, 'utf8'));
+        if (about.avatar) {
+          const avatarBase = path.basename(about.avatar.trim().replace(/^['"]+|['"]+$/g, ''));
+          const candidateAvatar = path.join(dataDir, 'images', avatarBase);
+          if (fs.existsSync(candidateAvatar)) {
+            const destAvatar = path.join(PORTFOLIO_ROOT, 'src', 'images', avatarBase);
+            fs.copyFileSync(candidateAvatar, destAvatar);
+            console.log(`  ✓ Synced Avatar: "${avatarBase}" -> src/images/${avatarBase}`);
+          }
+        }
+      } catch (_) {}
+    }
+
+    // 4. Sync jobs.json into content/jobs/
     const jobsJsonPath = path.join(dataDir, 'jobs.json');
     if (fs.existsSync(jobsJsonPath)) {
       try {
@@ -155,7 +250,7 @@ function sync() {
       }
     }
 
-    // 4. Sync featured.json into content/featured/
+    // 5. Sync featured.json into content/featured/
     const featuredJsonPath = path.join(dataDir, 'featured.json');
     if (fs.existsSync(featuredJsonPath)) {
       try {
@@ -163,8 +258,8 @@ function sync() {
         if (Array.isArray(featured)) {
           featured.forEach(item => {
             const slug = slugify(item.title);
-            // Check if existing directory matches title or slug
             let targetDir = null;
+
             if (fs.existsSync(CONTENT_FEATURED_DIR)) {
               const existingDirs = fs.readdirSync(CONTENT_FEATURED_DIR, { withFileTypes: true });
               for (const d of existingDirs) {
@@ -190,15 +285,8 @@ function sync() {
               fs.mkdirSync(targetDir, { recursive: true });
             }
 
-            // Read existing cover if present
-            let coverFile = item.cover || './cover.png';
-            const indexPath = path.join(targetDir, 'index.md');
-            if (fs.existsSync(indexPath)) {
-              try {
-                const match = fs.readFileSync(indexPath, 'utf8').match(/cover:\s*([^\r\n]+)/);
-                if (match) coverFile = match[1].trim();
-              } catch (_) {}
-            }
+            // Resolve and copy/download cover image
+            const coverFile = resolveProjectCover(item, targetDir, dataDir);
 
             const frontmatter = {
               date: String(item.order || '1'),
@@ -215,7 +303,7 @@ function sync() {
             }\n`;
             fs.writeFileSync(path.join(targetDir, 'index.md'), mdContent, 'utf8');
             console.log(
-              `  ✓ Synced Featured: "${item.title}" -> ${path.relative(
+              `  ✓ Synced Featured: "${item.title}" (cover: ${coverFile}) -> ${path.relative(
                 PORTFOLIO_ROOT,
                 targetDir,
               )}/index.md`,
@@ -227,7 +315,7 @@ function sync() {
       }
     }
 
-    // 5. Sync projects.json into content/projects/
+    // 6. Sync projects.json into content/projects/
     const projectsJsonPath = path.join(dataDir, 'projects.json');
     if (fs.existsSync(projectsJsonPath)) {
       try {

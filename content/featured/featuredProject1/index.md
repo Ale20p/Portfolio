@@ -1,7 +1,7 @@
 ---
 date: '1'
 title: FantasyPicks
-cover: "'''''''''''''''./fantasyPicks.png'''''''''''''''"
+cover: ./fantasyPicks.png
 github: 'https://github.com/Ale20p/FantasyPicks'
 external: ''
 cta: ''
