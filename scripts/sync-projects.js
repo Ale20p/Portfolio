@@ -5,8 +5,8 @@
  * Automatically synchronizes projects from the "Projects" repository into the Portfolio.
  * - Detects project metadata from `portfolio.json` or YAML frontmatter in `README.md`.
  * - Top highlights (featured: true) are placed in `content/featured/auto-<slug>/`.
+ * - Cover images are resolved from `Portfolio-Data/images/` (or `src/data/images/`) first, then the project folder.
  * - Other noteworthy projects and archive are placed in `content/projects/auto-<slug>.md`.
- * - Safely preserves manual external projects (e.g. FantasyPicks, Academic Management System).
  * - Works locally (using ../Projects) and remotely (e.g. on Vercel via git clone).
  */
 
@@ -88,7 +88,7 @@ function resolveProjectsDir() {
     return { dir: path.resolve(process.env.PROJECTS_DIR), isTemp: false };
   }
 
-  // 2. Local sibling directory (c:\Users\alexp\WORKSPACES\InProProjects\Projects)
+  // 2. Local sibling directory (../Projects)
   const siblingDir = path.resolve(PORTFOLIO_ROOT, '..', 'Projects');
   if (fs.existsSync(siblingDir)) {
     console.log(`[sync-projects] Found local sibling Projects repo: ${siblingDir}`);
@@ -184,9 +184,7 @@ function extractSummaryFromReadme(body) {
     paragraphs.push(currentParagraph.join(' ').trim());
   }
 
-  // Find first suitable paragraph
   for (const p of paragraphs) {
-    // Avoid table of contents or short links
     if (p.length > 30 && !p.startsWith('-') && !p.startsWith('*')) {
       return p;
     }
@@ -202,7 +200,6 @@ function detectTech(projectDir, rootDir) {
   const rel = path.relative(rootDir, projectDir).replace(/\\/g, '/');
   const parts = rel.split('/');
 
-  // Check category directory (e.g. Java, Python, Vue)
   if (parts.length > 1) {
     const category = parts[0];
     if (category.toLowerCase() === 'java') {
@@ -285,7 +282,6 @@ function findProjects(dir, rootDir, maxDepth = 4, currentDepth = 0) {
     } catch (_) {}
   }
 
-  // If this folder has portfolio.json or frontmatter in README.md, treat as a project!
   if (hasPortfolioJson || hasReadmeFrontmatter) {
     projects.push({
       dir,
@@ -293,11 +289,9 @@ function findProjects(dir, rootDir, maxDepth = 4, currentDepth = 0) {
       hasReadmeFrontmatter,
       readmeFile,
     });
-    // Do not recurse into subdirectories of an identified project
     return projects;
   }
 
-  // Otherwise, recurse into subdirectories
   for (const entry of entries) {
     if (entry.isDirectory() && !IGNORED_DIRS.has(entry.name)) {
       projects.push(
@@ -334,7 +328,6 @@ function parseProject(projectInfo, rootDir) {
       const raw = fs.readFileSync(readmeFile, 'utf8');
       const parsed = extractFrontmatter(raw);
       readmeData = parsed.data || {};
-      // If nested inside "portfolio:" key, unpack it
       if (readmeData.portfolio && typeof readmeData.portfolio === 'object') {
         readmeData = { ...readmeData, ...readmeData.portfolio };
       }
@@ -344,17 +337,12 @@ function parseProject(projectInfo, rootDir) {
     }
   }
 
-  // Merge metadata: portfolio.json takes precedence over readme frontmatter
   const meta = { ...readmeData, ...jsonData };
 
-  // Compute title
   const title = meta.title || extractTitleFromReadme(readmeBody) || folderName;
-
-  // Compute description
   const description =
     meta.description || extractSummaryFromReadme(readmeBody) || `Project ${title}`;
 
-  // Compute tech
   let tech = Array.isArray(meta.tech) ? meta.tech : [];
   if (tech.length === 0) {
     tech = detectTech(dir, rootDir);
@@ -363,23 +351,13 @@ function parseProject(projectInfo, rootDir) {
     tech = ['Software'];
   }
 
-  // GitHub URL
   const defaultGithub = `https://github.com/Ale20p/Projects/tree/main/${relPath}`;
   const github = meta.github !== undefined ? meta.github : defaultGithub;
-
-  // External demo link
   const external = meta.external || '';
-
-  // CTA link (for featured)
   const cta = meta.cta || '';
-
-  // Company / Made at (for archive)
   const company = meta.company || '';
-
-  // Featured flag
   const isFeatured = Boolean(meta.featured || meta.highlight || meta.top);
 
-  // Featured order (1, 2, 3...)
   let featuredOrder = 1;
   if (typeof meta.featured === 'number') {
     featuredOrder = meta.featured;
@@ -391,35 +369,56 @@ function parseProject(projectInfo, rootDir) {
     featuredOrder = Number(meta.order) || 1;
   }
 
-  // Date for sorting
   const date = formatDate(meta.date);
+  const slug = slugify(folderName);
 
-  // Cover image for featured projects
+  // Cover image for featured projects (checks Portfolio-Data/images & src/data/images first)
+  const portfolioDataImagesDir = path.resolve(PORTFOLIO_ROOT, '..', 'Portfolio-Data', 'images');
+  const syncedDataImagesDir = path.join(PORTFOLIO_ROOT, 'src', 'data', 'images');
+
   let coverImageSource = null;
   if (meta.cover) {
-    const candidate = path.resolve(dir, meta.cover);
-    if (fs.existsSync(candidate)) {
-      coverImageSource = candidate;
+    const cleanCoverName = path.basename(
+      String(meta.cover)
+        .trim()
+        .replace(/^['"]+|['"]+$/g, ''),
+    );
+    const candidates = [
+      path.join(portfolioDataImagesDir, cleanCoverName),
+      path.join(syncedDataImagesDir, cleanCoverName),
+      path.resolve(dir, meta.cover),
+    ];
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        coverImageSource = candidate;
+        break;
+      }
     }
   }
   if (!coverImageSource) {
-    // Look for common image names in project directory
     const imageNames = [
+      `${folderName}.png`,
+      `${folderName}.jpg`,
+      `${slug}.png`,
+      `${slug}.jpg`,
       'cover.png',
       'cover.jpg',
       'cover.webp',
       'screenshot.png',
       'screenshot.jpg',
       'preview.png',
-      `${folderName}.png`,
-      `${slugify(folderName)}.png`,
     ];
-    for (const name of imageNames) {
-      const candidate = path.join(dir, name);
-      if (fs.existsSync(candidate)) {
-        coverImageSource = candidate;
-        break;
+    const searchDirs = [portfolioDataImagesDir, syncedDataImagesDir, dir];
+    for (const sDir of searchDirs) {
+      if (!fs.existsSync(sDir)) continue;
+      for (const name of imageNames) {
+        const candidate = path.join(sDir, name);
+        if (fs.existsSync(candidate)) {
+          coverImageSource = candidate;
+          break;
+        }
       }
+      if (coverImageSource) break;
     }
   }
   if (!coverImageSource && fs.existsSync(DEFAULT_COVER_IMAGE)) {
@@ -427,7 +426,6 @@ function parseProject(projectInfo, rootDir) {
   }
 
   const showInProjects = meta.showInProjects !== false;
-  const slug = slugify(folderName);
 
   return {
     dir,
@@ -461,7 +459,6 @@ function sync() {
   }
 
   try {
-    // Find all projects
     const rawProjects = findProjects(projectsDir, projectsDir);
     console.log(
       `[sync-projects] Found ${rawProjects.length} projects with portfolio configuration.`,
@@ -469,11 +466,9 @@ function sync() {
 
     const parsedProjects = rawProjects.map(p => parseProject(p, projectsDir));
 
-    // Ensure output directories exist
     fs.mkdirSync(CONTENT_PROJECTS_DIR, { recursive: true });
     fs.mkdirSync(CONTENT_FEATURED_DIR, { recursive: true });
 
-    // Track active auto-synced slugs
     const activeProjectSlugs = new Set();
     const activeFeaturedSlugs = new Set();
 
@@ -483,7 +478,6 @@ function sync() {
         const featuredDir = path.join(CONTENT_FEATURED_DIR, `auto-${proj.slug}`);
         fs.mkdirSync(featuredDir, { recursive: true });
 
-        // Copy cover image
         let coverFileName = 'cover.png';
         if (proj.coverImageSource && fs.existsSync(proj.coverImageSource)) {
           const ext = path.extname(proj.coverImageSource) || '.png';
@@ -507,7 +501,9 @@ function sync() {
         const mdContent = `---\n${yaml.dump(frontmatter).trim()}\n---\n\n${proj.description}\n`;
         fs.writeFileSync(path.join(featuredDir, 'index.md'), mdContent, 'utf8');
         console.log(
-          `  ✓ Synced FEATURED highlight: "${proj.title}" -> content/featured/auto-${proj.slug}/`,
+          `  ✓ Synced FEATURED highlight: "${proj.title}" (cover: ${path.basename(
+            proj.coverImageSource || 'default',
+          )}) -> content/featured/auto-${proj.slug}/`,
         );
       } else {
         activeProjectSlugs.add(proj.slug);
@@ -534,8 +530,7 @@ function sync() {
       }
     }
 
-    // Clean up obsolete auto-synced files (without touching manual external projects)
-    // 1. Projects folder
+    // Clean up obsolete auto-synced files
     if (fs.existsSync(CONTENT_PROJECTS_DIR)) {
       const files = fs.readdirSync(CONTENT_PROJECTS_DIR);
       for (const file of files) {
@@ -549,7 +544,6 @@ function sync() {
       }
     }
 
-    // 2. Featured folder
     if (fs.existsSync(CONTENT_FEATURED_DIR)) {
       const dirs = fs.readdirSync(CONTENT_FEATURED_DIR, { withFileTypes: true });
       for (const d of dirs) {
@@ -565,7 +559,6 @@ function sync() {
 
     console.log(`[sync-projects] Successfully finished project synchronization!`);
   } finally {
-    // If we used a temporary clone, clean it up
     if (isTemp && fs.existsSync(TEMP_CLONE_DIR)) {
       try {
         fs.rmSync(TEMP_CLONE_DIR, { recursive: true, force: true });
@@ -575,5 +568,4 @@ function sync() {
   }
 }
 
-// Execute
 sync();

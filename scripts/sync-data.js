@@ -2,13 +2,10 @@
 /**
  * sync-data.js
  *
- * Automatically synchronizes portfolio data and images from the "Portfolio-Data" repository.
- * - Copies raw JSON files into `src/data/` (meta, hero, about, jobs, featured, projects, contact).
- * - Copies images from `Portfolio-Data/images/` (or downloads remote image URLs) into featured projects and src/images.
+ * Automatically synchronizes profile & experience data and images from "Portfolio-Data".
+ * - Copies JSON files into `src/data/` (meta, hero, about, jobs, contact).
+ * - Syncs all images from `Portfolio-Data/images/` into `src/data/images/` and `src/images/`.
  * - Converts `jobs.json` into markdown files under `content/jobs/<company>/index.md`.
- * - Updates `featured.json` content in `content/featured/`.
- * - Updates `projects.json` content in `content/projects/`.
- * - Works locally (via sibling ../Portfolio-Data) and remotely (e.g. Vercel via Git clone).
  */
 
 const fs = require('fs');
@@ -18,37 +15,14 @@ const yaml = require('js-yaml');
 
 const PORTFOLIO_ROOT = path.resolve(__dirname, '..');
 const SRC_DATA_DIR = path.join(PORTFOLIO_ROOT, 'src', 'data');
+const SRC_DATA_IMAGES_DIR = path.join(SRC_DATA_DIR, 'images');
 const CONTENT_JOBS_DIR = path.join(PORTFOLIO_ROOT, 'content', 'jobs');
-const CONTENT_FEATURED_DIR = path.join(PORTFOLIO_ROOT, 'content', 'featured');
-const CONTENT_PROJECTS_DIR = path.join(PORTFOLIO_ROOT, 'content', 'projects');
 
 const DATA_GITHUB_REPO = 'https://github.com/Ale20p/Portfolio-Data.git';
 const TEMP_CLONE_DIR = path.join(PORTFOLIO_ROOT, '.temp_data_sync');
 
-const JSON_FILES = [
-  'meta.json',
-  'hero.json',
-  'about.json',
-  'jobs.json',
-  'featured.json',
-  'projects.json',
-  'contact.json',
-];
+const JSON_FILES = ['meta.json', 'hero.json', 'about.json', 'jobs.json', 'contact.json'];
 
-function slugify(text) {
-  return text
-    .toString()
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .replace(/[_\s]+/g, '-')
-    .toLowerCase()
-    .replace(/[^\w-]+/g, '')
-    .replace(/--+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-/**
- * Resolve the root directory of the Portfolio-Data repository
- */
 function resolveDataDir() {
   if (process.env.PORTFOLIO_DATA_DIR && fs.existsSync(process.env.PORTFOLIO_DATA_DIR)) {
     console.log(`[sync-data] Using PORTFOLIO_DATA_DIR from env: ${process.env.PORTFOLIO_DATA_DIR}`);
@@ -85,86 +59,6 @@ function resolveDataDir() {
   }
 }
 
-/**
- * Resolve and copy or download cover image for a featured project
- */
-function resolveProjectCover(item, targetDir, dataDir) {
-  const imagesDir = path.join(dataDir, 'images');
-  const slug = slugify(item.title);
-
-  let rawCover = (item.cover || '').trim().replace(/^['"]+|['"]+$/g, '');
-
-  // 1. If it's a remote URL, download it
-  if (rawCover.startsWith('http://') || rawCover.startsWith('https://')) {
-    try {
-      const ext = path.extname(new URL(rawCover).pathname) || '.png';
-      const destName = `cover${ext}`;
-      const destPath = path.join(targetDir, destName);
-      execSync(`curl -sL "${rawCover}" -o "${destPath}"`, { timeout: 15000 });
-      if (fs.existsSync(destPath) && fs.statSync(destPath).size > 0) {
-        console.log(`  ✓ Downloaded remote cover for "${item.title}" -> ${destName}`);
-        return `./${destName}`;
-      }
-    } catch (e) {
-      console.warn(`[sync-data] Warning: Failed to download remote cover ${rawCover}:`, e.message);
-    }
-  }
-
-  // 2. Candidate filenames to search in Portfolio-Data/images/
-  let baseName = rawCover ? path.basename(rawCover) : '';
-  const candidateNames = [
-    baseName,
-    `${slug}.png`,
-    `${slug}.jpg`,
-    `${slug}.jpeg`,
-    `${slug}.webp`,
-    `${item.title}.png`,
-    `${item.title}.jpg`,
-    'cover.png',
-  ].filter(Boolean);
-
-  let sourceImage = null;
-  if (fs.existsSync(imagesDir)) {
-    for (const name of candidateNames) {
-      const candidatePath = path.join(imagesDir, name);
-      if (fs.existsSync(candidatePath)) {
-        sourceImage = candidatePath;
-        baseName = name;
-        break;
-      }
-    }
-  }
-
-  // 3. If image found in Portfolio-Data/images, copy it to targetDir
-  if (sourceImage) {
-    const destImage = path.join(targetDir, baseName);
-    fs.copyFileSync(sourceImage, destImage);
-    console.log(
-      `  ✓ Synced image from Portfolio-Data/images/${baseName} -> ${path.relative(
-        PORTFOLIO_ROOT,
-        destImage,
-      )}`,
-    );
-    return `./${baseName}`;
-  }
-
-  // 4. Check if an image already exists in targetDir
-  if (fs.existsSync(targetDir)) {
-    const existingFiles = fs.readdirSync(targetDir);
-    for (const f of existingFiles) {
-      if (/\.(png|jpe?g|webp|gif)$/i.test(f)) {
-        return `./${f}`;
-      }
-    }
-  }
-
-  // 5. Fallback default
-  return './cover.png';
-}
-
-/**
- * Main sync logic
- */
 function sync() {
   console.log(`[sync-data] Starting sync from Portfolio-Data repository...`);
 
@@ -175,13 +69,19 @@ function sync() {
   }
 
   try {
-    // 1. Ensure directories exist
     fs.mkdirSync(SRC_DATA_DIR, { recursive: true });
+    fs.mkdirSync(SRC_DATA_IMAGES_DIR, { recursive: true });
     fs.mkdirSync(CONTENT_JOBS_DIR, { recursive: true });
-    fs.mkdirSync(CONTENT_FEATURED_DIR, { recursive: true });
-    fs.mkdirSync(CONTENT_PROJECTS_DIR, { recursive: true });
 
-    // 2. Copy all JSON files to src/data
+    // 1. Remove obsolete featured.json / projects.json from src/data if present
+    for (const obsolete of ['featured.json', 'projects.json']) {
+      const obsoletePath = path.join(SRC_DATA_DIR, obsolete);
+      if (fs.existsSync(obsoletePath)) {
+        fs.unlinkSync(obsoletePath);
+      }
+    }
+
+    // 2. Copy JSON files to src/data
     for (const fileName of JSON_FILES) {
       const srcPath = path.join(dataDir, fileName);
       if (fs.existsSync(srcPath)) {
@@ -193,14 +93,27 @@ function sync() {
       }
     }
 
-    // 3. Sync avatar image from Portfolio-Data/images if present
+    // 3. Copy all images from Portfolio-Data/images/ to src/data/images/
+    const sourceImagesDir = path.join(dataDir, 'images');
+    if (fs.existsSync(sourceImagesDir)) {
+      const imageFiles = fs.readdirSync(sourceImagesDir);
+      for (const imgFile of imageFiles) {
+        const srcImg = path.join(sourceImagesDir, imgFile);
+        if (fs.statSync(srcImg).isFile()) {
+          fs.copyFileSync(srcImg, path.join(SRC_DATA_IMAGES_DIR, imgFile));
+          console.log(`  ✓ Cached image: "${imgFile}" -> src/data/images/${imgFile}`);
+        }
+      }
+    }
+
+    // 4. Sync avatar image to src/images/
     const aboutJsonPath = path.join(dataDir, 'about.json');
     if (fs.existsSync(aboutJsonPath)) {
       try {
         const about = JSON.parse(fs.readFileSync(aboutJsonPath, 'utf8'));
         if (about.avatar) {
           const avatarBase = path.basename(about.avatar.trim().replace(/^['"]+|['"]+$/g, ''));
-          const candidateAvatar = path.join(dataDir, 'images', avatarBase);
+          const candidateAvatar = path.join(sourceImagesDir, avatarBase);
           if (fs.existsSync(candidateAvatar)) {
             const destAvatar = path.join(PORTFOLIO_ROOT, 'src', 'images', avatarBase);
             fs.copyFileSync(candidateAvatar, destAvatar);
@@ -210,13 +123,12 @@ function sync() {
       } catch (_) {}
     }
 
-    // 4. Sync jobs.json into content/jobs/
+    // 5. Sync jobs.json into content/jobs/
     const jobsJsonPath = path.join(dataDir, 'jobs.json');
     if (fs.existsSync(jobsJsonPath)) {
       try {
         const jobs = JSON.parse(fs.readFileSync(jobsJsonPath, 'utf8'));
         if (Array.isArray(jobs) && jobs.length > 0) {
-          // Remove old mock template jobs
           if (fs.existsSync(CONTENT_JOBS_DIR)) {
             fs.rmSync(CONTENT_JOBS_DIR, { recursive: true, force: true });
           }
@@ -247,105 +159,6 @@ function sync() {
         }
       } catch (err) {
         console.error(`[sync-data] Error parsing jobs.json:`, err.message);
-      }
-    }
-
-    // 5. Sync featured.json into content/featured/
-    const featuredJsonPath = path.join(dataDir, 'featured.json');
-    if (fs.existsSync(featuredJsonPath)) {
-      try {
-        const featured = JSON.parse(fs.readFileSync(featuredJsonPath, 'utf8'));
-        if (Array.isArray(featured)) {
-          featured.forEach(item => {
-            const slug = slugify(item.title);
-            let targetDir = null;
-
-            if (fs.existsSync(CONTENT_FEATURED_DIR)) {
-              const existingDirs = fs.readdirSync(CONTENT_FEATURED_DIR, { withFileTypes: true });
-              for (const d of existingDirs) {
-                if (d.isDirectory()) {
-                  const indexPath = path.join(CONTENT_FEATURED_DIR, d.name, 'index.md');
-                  if (fs.existsSync(indexPath)) {
-                    const content = fs.readFileSync(indexPath, 'utf8');
-                    if (
-                      content.includes(`title: ${item.title}`) ||
-                      content.includes(`title: '${item.title}'`) ||
-                      content.includes(`title: "${item.title}"`)
-                    ) {
-                      targetDir = path.join(CONTENT_FEATURED_DIR, d.name);
-                      break;
-                    }
-                  }
-                }
-              }
-            }
-
-            if (!targetDir) {
-              targetDir = path.join(CONTENT_FEATURED_DIR, `auto-${slug}`);
-              fs.mkdirSync(targetDir, { recursive: true });
-            }
-
-            // Resolve and copy/download cover image
-            const coverFile = resolveProjectCover(item, targetDir, dataDir);
-
-            const frontmatter = {
-              date: String(item.order || '1'),
-              title: item.title,
-              cover: coverFile,
-              github: item.github || '',
-              external: item.external || '',
-              cta: item.cta || '',
-              tech: item.tech || [],
-            };
-
-            const mdContent = `---\n${yaml.dump(frontmatter).trim()}\n---\n\n${
-              item.description || ''
-            }\n`;
-            fs.writeFileSync(path.join(targetDir, 'index.md'), mdContent, 'utf8');
-            console.log(
-              `  ✓ Synced Featured: "${item.title}" (cover: ${coverFile}) -> ${path.relative(
-                PORTFOLIO_ROOT,
-                targetDir,
-              )}/index.md`,
-            );
-          });
-        }
-      } catch (err) {
-        console.error(`[sync-data] Error parsing featured.json:`, err.message);
-      }
-    }
-
-    // 6. Sync projects.json into content/projects/
-    const projectsJsonPath = path.join(dataDir, 'projects.json');
-    if (fs.existsSync(projectsJsonPath)) {
-      try {
-        const projects = JSON.parse(fs.readFileSync(projectsJsonPath, 'utf8'));
-        if (Array.isArray(projects)) {
-          projects.forEach(item => {
-            const slug = slugify(item.title);
-            const targetFile = path.join(CONTENT_PROJECTS_DIR, `auto-${slug}.md`);
-
-            const frontmatter = {
-              date: item.date || '2025-01-01',
-              title: item.title,
-              github: item.github || '',
-              external: item.external || '',
-              tech: item.tech || [],
-              showInProjects: item.showInProjects !== false,
-              company: item.company || '',
-            };
-
-            const mdContent = `---\n${yaml.dump(frontmatter).trim()}\n---\n\n${
-              item.description || ''
-            }\n`;
-            fs.writeFileSync(targetFile, mdContent, 'utf8');
-            console.log(
-              `  ✓ Synced Project: "${item.title}" -> ${path.relative(PORTFOLIO_ROOT, targetFile)}`,
-            );
-          });
-        }
-      } catch (err) {
-        console.error(`[sync-data] Error parsing projects.json:`, err.message);
       }
     }
 
