@@ -443,10 +443,6 @@ const GlobalStyle = createGlobalStyle`
     height: 100%;
   }
 
-  /* Once I have job experience, this little bit of css should be removed so that the Jobs section will be viewable again. */
-  /* Also remember to reconfigure header to include job section. */
-  #jobs { display: none; }
-
   ${TransitionStyles};
 
   ${PrismStyles};

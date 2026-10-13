@@ -22,7 +22,7 @@
     {
       "name": "Experience",
       "url": "/#jobs",
-      "enabled": false
+      "enabled": true
     },
     {
       "name": "Work",
